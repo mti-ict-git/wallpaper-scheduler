@@ -28,4 +28,4 @@ volumes:
     driver_opts:
       type: cifs
       device: "${CIFS_SHARE_PATH}"
-      o: "username=${DOMAIN_USERNAME},password=${DOMAIN_PASSWORD},vers=${CIFS_VERS:-3.0},uid=0,gid=0,file_mode=0664,dir_mode=0775,noperm"
+      o: "username=${DOMAIN_USERNAME},password=${DOMAIN_PASSWORD},domain=${DOMAIN_NAME},prefixpath=${CIFS_PREFIX_PATH},vers=${CIFS_VERS:-3.0},sec=ntlmssp,uid=0,gid=0,file_mode=0664,dir_mode=0775,noperm"
