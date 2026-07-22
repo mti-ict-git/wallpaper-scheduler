@@ -54,7 +54,6 @@ Publish target:
 - `DOMAIN_PASSWORD_FILE`
 - `SHARED_FOLDER_PATH`
 - `CIFS_SHARE_PATH`
-- `CIFS_PREFIX_PATH`
 - `CIFS_VERS`
 
 ## AD And Share Access Options
@@ -73,8 +72,8 @@ Two supported mount patterns:
 
 2. Docker-managed CIFS volume (named volume)
    - Docker creates a named volume using the `local` driver with `cifs` driver options.
-   - Docker mounts `CIFS_SHARE_PATH` directly as a volume and attaches it to the container at `SHARED_FOLDER_PATH`.
-   - When the target lives under a subfolder of the share root, use `CIFS_PREFIX_PATH` for the relative path inside the share.
+   - Docker mounts the root share from `CIFS_SHARE_PATH` into an internal container path such as `/app/sysvol`.
+   - `SHARED_FOLDER_PATH` should point to the final subdirectory inside that mounted share, for example `/app/sysvol/domain/scripts`.
    - The mount options can use `DOMAIN_NAME`, `DOMAIN_USERNAME`, `DOMAIN_PASSWORD`, and `CIFS_VERS` directly from environment injection.
 
 ## Share Access Flow
@@ -83,8 +82,9 @@ Two supported mount patterns:
 2. Mount the share into the container using either:
    - host-managed mount + bind mount, or
    - Docker-managed CIFS volume + `driver_opts`.
-3. Publisher writes staging and final files to the mounted `SHARED_FOLDER_PATH`.
-4. Credentials remain outside the image and outside source control.
+3. Point `SHARED_FOLDER_PATH` to the final target subdirectory inside the mounted share.
+4. Publisher writes staging and final files to the mounted `SHARED_FOLDER_PATH`.
+5. Credentials remain outside the image and outside source control.
 
 ## Example Configuration Shape
 
@@ -99,9 +99,8 @@ DOMAIN_NAME=...
 DOMAIN_USERNAME=...
 DOMAIN_PASSWORD=...
 JWT_SECRET_FILE=/run/secrets/jwt_secret
-SHARED_FOLDER_PATH=/app/scripts
+SHARED_FOLDER_PATH=/app/sysvol/domain/scripts
 CIFS_SHARE_PATH=//domain-controller/SYSVOL
-CIFS_PREFIX_PATH=domain/scripts
 CIFS_VERS=3.0
 BACKUP_PATH=/app/storage/backups
 ```
