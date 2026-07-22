@@ -53,7 +53,7 @@ Publish target:
 - `DOMAIN_PASSWORD_FILE`
 - `SHARED_FOLDER_PATH`
 - `CIFS_SHARE_PATH`
-- `CIFS_MOUNT_OPTS`
+- `CIFS_VERS`
 
 ## AD And Share Access Options
 
@@ -72,7 +72,7 @@ Two supported mount patterns:
 2. Docker-managed CIFS volume (named volume)
    - Docker creates a named volume using the `local` driver with `cifs` driver options.
    - Docker mounts `CIFS_SHARE_PATH` directly as a volume and attaches it to the container at `SHARED_FOLDER_PATH`.
-   - `CIFS_MOUNT_OPTS` provides the CIFS mount options string (for example: `credentials=/path/to/creds,vers=3.0,...`).
+   - The mount options can use `DOMAIN_USERNAME`, `DOMAIN_PASSWORD`, and `CIFS_VERS` directly from environment injection.
 
 ## Share Access Flow
 
