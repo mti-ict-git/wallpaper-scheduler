@@ -1,6 +1,37 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { ScheduleRecord, WallpaperRecord } from '@shared/contracts'
 import { useAppStore } from '@/store/app-store'
+
+const COMMON_TIMEZONES = [
+  'UTC',
+  'Asia/Jakarta',
+  'Asia/Bangkok',
+  'Asia/Singapore',
+  'Asia/Kuala_Lumpur',
+  'Asia/Tokyo',
+  'Asia/Seoul',
+  'Australia/Sydney',
+  'Europe/London',
+  'Europe/Berlin',
+  'America/New_York',
+  'America/Chicago',
+  'America/Denver',
+  'America/Los_Angeles',
+]
+
+function formatTimezoneOption(timeZone: string) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      timeZoneName: 'shortOffset',
+    }).formatToParts(new Date())
+    const rawOffset = parts.find((part) => part.type === 'timeZoneName')?.value ?? 'UTC'
+    const offsetLabel = rawOffset.replace('GMT', 'UTC')
+    return `${timeZone} (${offsetLabel})`
+  } catch {
+    return timeZone
+  }
+}
 
 type SchedulesViewProps = {
   schedules: ScheduleRecord[]
@@ -10,6 +41,17 @@ type SchedulesViewProps = {
 
 export function SchedulesView({ schedules, wallpapers, timezone }: SchedulesViewProps) {
   const { saveSchedule, deleteSchedule } = useAppStore()
+  const timezoneOptions = useMemo(() => {
+    const values = new Set(COMMON_TIMEZONES)
+    if (timezone) {
+      values.add(timezone)
+    }
+
+    return Array.from(values).map((value) => ({
+      value,
+      label: formatTimezoneOption(value),
+    }))
+  }, [timezone])
   const [form, setForm] = useState({
     wallpaperId: wallpapers[0]?.id ?? '',
     name: '',
@@ -20,6 +62,27 @@ export function SchedulesView({ schedules, wallpapers, timezone }: SchedulesView
     enabled: true,
   })
 
+  useEffect(() => {
+    setForm((current) => {
+      const wallpaperId = wallpapers.some((wallpaper) => wallpaper.id === current.wallpaperId)
+        ? current.wallpaperId
+        : wallpapers[0]?.id ?? ''
+      const nextTimezone = timezoneOptions.some((option) => option.value === current.timezone)
+        ? current.timezone
+        : timezoneOptions[0]?.value ?? timezone
+
+      if (wallpaperId === current.wallpaperId && nextTimezone === current.timezone) {
+        return current
+      }
+
+      return {
+        ...current,
+        wallpaperId,
+        timezone: nextTimezone,
+      }
+    })
+  }, [timezone, timezoneOptions, wallpapers])
+
   return (
     <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
       <section className="rounded-3xl border border-white/10 bg-white/5 p-5">
@@ -28,6 +91,10 @@ export function SchedulesView({ schedules, wallpapers, timezone }: SchedulesView
           className="mt-4 space-y-4"
           onSubmit={(event) => {
             event.preventDefault()
+            if (!form.wallpaperId) {
+              return
+            }
+
             void saveSchedule({
               wallpaperId: form.wallpaperId,
               name: form.name,
@@ -39,22 +106,33 @@ export function SchedulesView({ schedules, wallpapers, timezone }: SchedulesView
             })
           }}
         >
+          {wallpapers.length === 0 ? (
+            <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+              Belum ada wallpaper aktif untuk dipilih. Upload wallpaper dulu di tab `Wallpapers`.
+            </div>
+          ) : null}
           <select
             value={form.wallpaperId}
             onChange={(event) => setForm((current) => ({ ...current, wallpaperId: event.target.value }))}
             className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white"
+            disabled={wallpapers.length === 0}
           >
-            {wallpapers.map((wallpaper) => (
-              <option key={wallpaper.id} value={wallpaper.id}>
-                {wallpaper.name}
-              </option>
-            ))}
+            {wallpapers.length === 0 ? (
+              <option value="">Upload wallpaper dulu</option>
+            ) : (
+              wallpapers.map((wallpaper) => (
+                <option key={wallpaper.id} value={wallpaper.id} className="bg-slate-950 text-white">
+                  {wallpaper.name}
+                </option>
+              ))
+            )}
           </select>
           <input
             value={form.name}
             onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
             placeholder="Nama schedule"
             className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white"
+            required
           />
           <div className="grid gap-4 md:grid-cols-2">
             <input
@@ -62,6 +140,7 @@ export function SchedulesView({ schedules, wallpapers, timezone }: SchedulesView
               value={form.startAt}
               onChange={(event) => setForm((current) => ({ ...current, startAt: event.target.value }))}
               className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white"
+              required
             />
             <input
               type="datetime-local"
@@ -71,11 +150,17 @@ export function SchedulesView({ schedules, wallpapers, timezone }: SchedulesView
             />
           </div>
           <div className="grid gap-4 md:grid-cols-2">
-            <input
+            <select
               value={form.timezone}
               onChange={(event) => setForm((current) => ({ ...current, timezone: event.target.value }))}
               className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white"
-            />
+            >
+              {timezoneOptions.map((option) => (
+                <option key={option.value} value={option.value} className="bg-slate-950 text-white">
+                  {option.label}
+                </option>
+              ))}
+            </select>
             <input
               type="number"
               value={form.priority}
@@ -83,6 +168,9 @@ export function SchedulesView({ schedules, wallpapers, timezone }: SchedulesView
               className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white"
             />
           </div>
+          <p className="text-xs leading-5 text-slate-400">
+            Priority lebih besar akan menang saat ada schedule yang overlap. End date boleh kosong kalau schedule mau tetap aktif tanpa batas.
+          </p>
           <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-300">
             <input
               type="checkbox"
@@ -91,7 +179,11 @@ export function SchedulesView({ schedules, wallpapers, timezone }: SchedulesView
             />
             Schedule enabled
           </label>
-          <button type="submit" className="rounded-2xl bg-cyan-300 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200">
+          <button
+            type="submit"
+            disabled={wallpapers.length === 0}
+            className="rounded-2xl bg-cyan-300 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-300"
+          >
             Simpan Schedule
           </button>
         </form>
