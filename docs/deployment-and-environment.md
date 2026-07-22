@@ -47,7 +47,7 @@ Scheduler:
 Publish target:
 - `PUBLISH_TARGET_PATH`
 - `PUBLISH_STAGING_PATH`
-- `PUBLISH_FILENAME=wallpaper.jpeg`
+- `PUBLISH_FILENAME=Wallpaper.jpg`
 - `DOMAIN_USERNAME`
 - `DOMAIN_NAME`
 - `DOMAIN_PASSWORD`
@@ -62,7 +62,7 @@ Publish target:
 
 - The Docker host runs on Ubuntu.
 - The container receives a stable mounted internal path such as `SHARED_FOLDER_PATH`.
-- The application writes `wallpaper.jpeg` to that mounted path instead of dynamically discovering a target at runtime.
+- The application writes `Wallpaper.jpg` to that mounted path instead of dynamically discovering a target at runtime.
 
 Two supported mount patterns:
 
@@ -122,3 +122,4 @@ BACKUP_PATH=/app/storage/backups
 - Validate CIFS remount or recovery after host reboot.
 - Validate secret file injection and secret rotation during deployment.
 - Validate scheduled backup creation and a documented restore drill.
+

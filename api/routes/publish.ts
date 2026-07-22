@@ -40,7 +40,7 @@ router.post('/manual', requireRole(['admin']), async (request: Request, response
     scheduleId: null,
     triggeredBy: request.authUser.id,
     sourceStoragePath: wallpaper.storagePath,
-    finalTargetPath: path.posix.join(appConfig.sharedFolderPath, 'wallpaper.jpeg'),
+    finalTargetPath: path.posix.join(appConfig.sharedFolderPath, 'Wallpaper.jpg'),
   })
 
   await writeAuditLog({

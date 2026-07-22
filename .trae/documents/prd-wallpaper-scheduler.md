@@ -1,5 +1,5 @@
 ## 1. Gambaran Produk
-Wallpaper Scheduler adalah aplikasi web full-stack berbasis TypeScript untuk upload wallpaper, menjadwalkan aktivasi berdasarkan tanggal dan jam, lalu mem-publish wallpaper aktif sebagai `wallpaper.jpeg` ke `SYSVOL` melalui CIFS mount pada host Ubuntu.
+Wallpaper Scheduler adalah aplikasi web full-stack berbasis TypeScript untuk upload wallpaper, menjadwalkan aktivasi berdasarkan tanggal dan jam, lalu mem-publish wallpaper aktif sebagai `Wallpaper.jpg` ke `SYSVOL` melalui CIFS mount pada host Ubuntu.
 - Produk ini ditujukan untuk tim IT agar penggantian wallpaper domain menjadi terpusat, terjadwal, dan bisa diaudit.
 - Nilai utama produk adalah menghilangkan proses manual rename-copy file serta memberi visibilitas publish status dan riwayat perubahan.
 
@@ -34,7 +34,7 @@ Wallpaper Scheduler adalah aplikasi web full-stack berbasis TypeScript untuk upl
 | Konfigurasi | Runtime settings | Timezone default, retry policy, fallback wallpaper, target mount path |
 
 ## 3. Proses Inti
-Alur utama dimulai saat admin login, mengupload wallpaper, lalu membuat schedule. Worker mengevaluasi jadwal aktif secara berkala, menentukan wallpaper yang harus aktif, dan men-trigger publish job. Publisher menulis file staging ke mounted path `SYSVOL`, memvalidasi hasilnya, lalu mengganti file final `wallpaper.jpeg`. Dashboard dan audit log menampilkan hasil eksekusi serta error jika terjadi kegagalan.
+Alur utama dimulai saat admin login, mengupload wallpaper, lalu membuat schedule. Worker mengevaluasi jadwal aktif secara berkala, menentukan wallpaper yang harus aktif, dan men-trigger publish job. Publisher menulis file staging ke mounted path `SYSVOL`, memvalidasi hasilnya, lalu mengganti file final `Wallpaper.jpg`. Dashboard dan audit log menampilkan hasil eksekusi serta error jika terjadi kegagalan.
 
 ```mermaid
 flowchart TD
@@ -45,7 +45,7 @@ flowchart TD
     E --> F["Tentukan wallpaper aktif"]
     F --> G["Buat publish job"]
     G --> H["Tulis file staging ke mounted SYSVOL path"]
-    H --> I["Replace file final wallpaper.jpeg"]
+    H --> I["Replace file final Wallpaper.jpg"]
     I --> J["Catat status publish dan audit log"]
     J --> K["Dashboard menampilkan hasil terbaru"]
 ```
@@ -70,3 +70,4 @@ flowchart TD
 
 ### 4.3 Responsivitas
 Desktop-first dengan adaptasi tablet. Halaman inti tetap usable pada lebar menengah, tetapi workflow operasional utama dioptimalkan untuk desktop admin.
+

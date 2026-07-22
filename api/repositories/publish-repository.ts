@@ -226,6 +226,6 @@ export async function loadDashboardOverview(workerLastHeartbeatAt: string | null
     failedJobCount: Number(counters.rows[0]?.failed_count ?? '0'),
     pendingJobCount: Number(counters.rows[0]?.pending_count ?? '0'),
     nextSchedules: schedules.filter((schedule) => new Date(schedule.startAt).getTime() >= Date.now()).slice(0, 5),
-    targetPath: `${appConfig.sharedFolderPath}/wallpaper.jpeg`,
+    targetPath: `${appConfig.sharedFolderPath}/Wallpaper.jpg`,
   }
 }

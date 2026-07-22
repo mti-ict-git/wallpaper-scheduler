@@ -7,7 +7,7 @@ Purpose:
 
 Contract:
 - Input dari sistem: file wallpaper source yang sudah divalidasi.
-- Output dari sistem: file `wallpaper.jpeg` di target path yang stabil.
+- Output dari sistem: file `Wallpaper.jpg` di target path yang stabil.
 - Expected target:
   - UNC share atau mounted path yang dibaca oleh policy wallpaper.
 
@@ -36,3 +36,4 @@ Purpose:
 Contract:
 - API dan worker dapat mengakses satu database yang sama.
 - Semua waktu disimpan dalam UTC.
+

@@ -21,7 +21,7 @@ Membangun sistem berbasis web yang memungkinkan admin menjadwalkan wallpaper dom
 
 - Web UI untuk upload wallpaper, manajemen schedule, dan monitoring publish status.
 - Scheduler berbasis timezone.
-- Publisher yang membangun file final `wallpaper.jpeg`.
+- Publisher yang membangun file final `Wallpaper.jpg`.
 - Integrasi ke share target untuk domain wallpaper distribution.
 - Audit log dan job history.
 - Dockerized deployment.
@@ -37,7 +37,7 @@ Membangun sistem berbasis web yang memungkinkan admin menjadwalkan wallpaper dom
 
 ## Key Assumptions
 
-- Wallpaper domain diarahkan ke satu path file yang stabil, misalnya `wallpaper.jpeg`.
+- Wallpaper domain diarahkan ke satu path file yang stabil, misalnya `Wallpaper.jpg`.
 - Sistem memiliki akses tulis ke target share yang dipakai distribusi wallpaper.
 - Host tempat Docker berjalan dapat mengakses resource Active Directory yang dibutuhkan.
 - Semua waktu schedule mengikuti timezone organisasi yang dikonfigurasi.
@@ -46,5 +46,6 @@ Membangun sistem berbasis web yang memungkinkan admin menjadwalkan wallpaper dom
 
 - Admin bisa upload wallpaper dan membuat schedule tanpa edit file manual.
 - Scheduler memilih wallpaper yang benar pada waktu yang tepat.
-- Publisher menghasilkan `wallpaper.jpeg` yang konsisten dan dapat diakses oleh domain clients.
+- Publisher menghasilkan `Wallpaper.jpg` yang konsisten dan dapat diakses oleh domain clients.
 - Kegagalan publish terlihat jelas dan tidak merusak last-known-good wallpaper.
+

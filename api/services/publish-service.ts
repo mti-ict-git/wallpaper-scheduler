@@ -126,5 +126,5 @@ export async function executePublishJob(jobId: string, maxRetryCount: number, re
 }
 
 export function buildPublishTargetFileName() {
-  return path.posix.join(appConfig.sharedFolderPath, 'wallpaper.jpeg')
+  return path.posix.join(appConfig.sharedFolderPath, 'Wallpaper.jpg')
 }

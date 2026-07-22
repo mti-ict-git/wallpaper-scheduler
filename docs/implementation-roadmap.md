@@ -96,7 +96,7 @@ Membangun skeleton aplikasi, Docker stack, autentikasi awal, storage upload, dan
 
 ### Objective
 
-Mengaktifkan evaluasi jadwal, publish `wallpaper.jpeg`, distribusi ke target share, dan observability minimum.
+Mengaktifkan evaluasi jadwal, publish `Wallpaper.jpg`, distribusi ke target share, dan observability minimum.
 
 ### Source Documents
 
@@ -119,7 +119,7 @@ Mengaktifkan evaluasi jadwal, publish `wallpaper.jpeg`, distribusi ke target sha
 ### Output
 
 - Sistem mampu mengubah wallpaper aktif sesuai schedule.
-- File `wallpaper.jpeg` terpublish ke target yang telah dikonfigurasi.
+- File `Wallpaper.jpg` terpublish ke target yang telah dikonfigurasi.
 
 ### Challenge / Verification
 
@@ -200,3 +200,4 @@ Validate the application against the mounted production-style target path, colle
 - Runtime metadata backup creation completed successfully and the artifact appeared in the backup inventory.
 - Runtime metadata restore drill completed successfully from the authenticated operations endpoint.
 - Phase status: `complete`
+

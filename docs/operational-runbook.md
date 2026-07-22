@@ -25,7 +25,7 @@
 
 ## Rollback
 
-- Default rollback keeps the last known good `wallpaper.jpeg`.
+- Default rollback keeps the last known good `Wallpaper.jpg`.
 - For a manual rollback, create a publish-target backup if needed, then restore the previous publish-target backup from the operations screen.
 - Avoid deleting the final file without a valid replacement.
 - If metadata corruption is suspected, restore the latest verified metadata backup during a controlled maintenance window.
@@ -78,3 +78,4 @@
 - Keep at least one recent metadata backup and one recent publish-target backup available outside the application working directory.
 - Rebuild the host mount first if CIFS access is lost.
 - Restore metadata only after confirming database connectivity and schema compatibility.
+

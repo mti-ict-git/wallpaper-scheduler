@@ -42,7 +42,7 @@ Tim IT membutuhkan cara terpusat untuk menjadwalkan wallpaper organisasi berdasa
 
 ### 5. Publish Workflow
 
-- Ketika wallpaper aktif berubah, sistem membuat artefak final dengan nama `wallpaper.jpeg`.
+- Ketika wallpaper aktif berubah, sistem membuat artefak final dengan nama `Wallpaper.jpg`.
 - Sistem mem-publish artefak final ke target share yang dikonfigurasi.
 - Publish dapat berjalan otomatis dari scheduler dan dapat dipicu manual dari UI.
 - Sistem menggunakan staging file lalu replace agar mengurangi risiko file korup.
@@ -80,7 +80,7 @@ Tim IT membutuhkan cara terpusat untuk menjadwalkan wallpaper organisasi berdasa
 2. Admin upload wallpaper.
 3. Admin membuat schedule untuk wallpaper tersebut.
 4. Scheduler mengevaluasi schedule sesuai waktu aktif.
-5. Publisher menghasilkan `wallpaper.jpeg`.
+5. Publisher menghasilkan `Wallpaper.jpg`.
 6. Publisher menyalin file ke target share.
 7. UI menampilkan hasil publish dan log.
 
@@ -90,3 +90,4 @@ Tim IT membutuhkan cara terpusat untuk menjadwalkan wallpaper organisasi berdasa
 - Jika publish gagal, last-known-good wallpaper tetap dipertahankan.
 - Jika target share tidak tersedia, sistem retry sesuai policy lalu tandai job gagal.
 - Jika schedule overlap, UI harus memberi warning atau memblokir tergantung policy yang dipilih.
+

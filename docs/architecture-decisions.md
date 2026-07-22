@@ -23,7 +23,7 @@ Reason:
 ## ADR-003 - Stable Publish Filename
 
 Decision:
-- File final yang dikonsumsi client domain memakai nama tetap `wallpaper.jpeg`.
+- File final yang dikonsumsi client domain memakai nama tetap `Wallpaper.jpg`.
 
 Reason:
 - Memudahkan GPO tetap menunjuk ke satu path.
@@ -45,3 +45,4 @@ Decision:
 
 Reason:
 - Mengurangi ambiguity saat DST atau perbedaan timezone host.
+

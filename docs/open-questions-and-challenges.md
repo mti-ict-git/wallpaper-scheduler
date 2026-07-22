@@ -17,7 +17,7 @@
 - The Docker host runs on Ubuntu.
 - The initial authentication model is local application auth.
 - The application writes to a stable mounted share path inside the container.
-- The publish artifact name remains `wallpaper.jpeg`.
+- The publish artifact name remains `Wallpaper.jpg`.
 
 ## Remaining Operational Risks
 
@@ -30,10 +30,11 @@
 - Mounted target directory write, read, and cleanup probe completed successfully.
 - Metadata backup creation and metadata restore drill completed successfully.
 - Validation report generation completed and captured the current publish target state, share writability, and backup inventory state.
-- The current environment still has no published `wallpaper.jpeg` file, so final target-file presence remains an environment readiness issue rather than an application failure.
+- The current environment still has no published `Wallpaper.jpg` file, so final target-file presence remains an environment readiness issue rather than an application failure.
 
 ## Security Challenges
 
 - Share credentials must remain outside the container image and outside source control.
 - The service account should keep the minimum permissions required for the target folder only.
 - Audit data must remain sufficient to trace schedule changes and manual publish triggers.
+
