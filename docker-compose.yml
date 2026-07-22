@@ -17,9 +17,15 @@ services:
     volumes:
       - ./:/app
       - app_node_modules:/app/node_modules
-      - /srv/wallpaper-scheduler/scripts:/app/scripts
+      - sysvol_scripts:/app/scripts
       - /srv/wallpaper-scheduler/storage:/app/storage
     command: npm run dev
 
 volumes:
   app_node_modules:
+  sysvol_scripts:
+    driver: local
+    driver_opts:
+      type: cifs
+      device: "${CIFS_SHARE_PATH}"
+      o: "credentials=${CIFS_CREDENTIALS_FILE},vers=${CIFS_VERS:-3.0},uid=0,gid=0,file_mode=0664,dir_mode=0775,noperm"

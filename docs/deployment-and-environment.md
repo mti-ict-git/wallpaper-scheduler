@@ -56,19 +56,31 @@ Publish target:
 
 ## AD And Share Access Options
 
-### Confirmed Deployment Pattern
+### Supported Deployment Patterns
 
 - The Docker host runs on Ubuntu.
-- The Ubuntu host mounts the CIFS/SMB `SYSVOL` target share.
 - The container receives a stable mounted internal path such as `SHARED_FOLDER_PATH`.
 - The application writes `wallpaper.jpeg` to that mounted path instead of dynamically discovering a target at runtime.
 
+Two supported mount patterns:
+
+1. Host-managed mount (bind mount)
+   - The Ubuntu host mounts the CIFS/SMB `SYSVOL` target share.
+   - Docker Compose bind-mounts the host directory into the container.
+
+2. Docker-managed CIFS volume (named volume)
+   - Docker creates a named volume using the `local` driver with `cifs` driver options.
+   - Docker mounts `CIFS_SHARE_PATH` directly as a volume and attaches it to the container at `SHARED_FOLDER_PATH`.
+   - Credentials live in a host file referenced by `CIFS_CREDENTIALS_FILE` (not in source control).
+
 ## Share Access Flow
 
-1. Ubuntu host mount `CIFS_SHARE_PATH` ke direktori host yang terkontrol.
-2. Docker Compose mount direktori host tersebut ke path dalam container sesuai `SHARED_FOLDER_PATH`.
-3. Publisher menulis file staging dan final ke path container yang telah di-mount.
-4. Kredensial domain hanya dipakai di layer host mount atau secret injection, bukan di-hardcode ke image.
+1. Provide `CIFS_SHARE_PATH` and credentials securely (secret file, secret manager, or host file).
+2. Mount the share into the container using either:
+   - host-managed mount + bind mount, or
+   - Docker-managed CIFS volume + `driver_opts`.
+3. Publisher writes staging and final files to the mounted `SHARED_FOLDER_PATH`.
+4. Credentials remain outside the image and outside source control.
 
 ## Example Configuration Shape
 
@@ -94,7 +106,7 @@ BACKUP_PATH=/app/storage/backups
 - Back up database metadata and the publish target on a scheduled basis.
 - Mount a persistent backup directory into the application container.
 - Consider a reverse proxy with TLS termination.
-- On Ubuntu, prioritize host-mounted shares and host-managed credentials.
+- On Ubuntu, choose either a host-managed mount or a Docker-managed CIFS volume depending on operational policy.
 
 ## Verification Before Production
 
