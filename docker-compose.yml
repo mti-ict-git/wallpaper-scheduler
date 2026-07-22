@@ -14,6 +14,10 @@ services:
       - PORT=3011
     volumes:
       - ./:/app
+      - app_node_modules:/app/node_modules
       - /srv/wallpaper-scheduler/scripts:/app/scripts
       - /srv/wallpaper-scheduler/storage:/app/storage
     command: npm run dev
+
+volumes:
+  app_node_modules:
