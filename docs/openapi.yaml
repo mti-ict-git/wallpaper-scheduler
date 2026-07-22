@@ -109,7 +109,9 @@ paths:
         "201":
           description: Wallpaper created
         "400":
-          description: Invalid upload payload
+          description: Invalid upload payload or unsupported/corrupt image file
+        "413":
+          description: Upload file exceeds the pre-normalization size limit
 
   /wallpapers/{wallpaperId}/preview:
     get:
