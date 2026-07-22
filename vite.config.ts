@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react'
 import tsconfigPaths from "vite-tsconfig-paths";
 
 // https://vite.dev/config/
+const isDocker = process.env.DOCKER === '1'
+
 export default defineConfig({
   plugins: [
     react({
@@ -15,6 +17,14 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   server: {
+    host: isDocker ? true : undefined,
+    port: isDocker ? 5173 : undefined,
+    strictPort: isDocker ? true : undefined,
+    hmr: isDocker
+      ? {
+          clientPort: process.env.VITE_HMR_CLIENT_PORT ? Number(process.env.VITE_HMR_CLIENT_PORT) : undefined,
+        }
+      : undefined,
     proxy: {
       '/api': {
         target: 'http://localhost:3011',

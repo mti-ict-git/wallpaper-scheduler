@@ -12,6 +12,8 @@ services:
       - STORAGE_LOCAL_PATH=/app/storage/wallpapers
       - SHARED_FOLDER_PATH=/app/scripts
       - PORT=3011
+      - DOCKER=1
+      - VITE_HMR_CLIENT_PORT=9105
     volumes:
       - ./:/app
       - app_node_modules:/app/node_modules
