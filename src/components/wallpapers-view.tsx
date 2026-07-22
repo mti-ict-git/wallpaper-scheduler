@@ -73,7 +73,21 @@ export function WallpapersView({ wallpapers }: WallpapersViewProps) {
         {selectedWallpaper ? (
           <>
             <h2 className="text-lg font-semibold text-white">Detail Wallpaper</h2>
-            <img src={selectedWallpaper.previewUrl} alt={getWallpaperLabel(selectedWallpaper)} className="mt-4 h-72 w-full rounded-3xl object-cover" />
+            <img
+              src={selectedWallpaper.previewUrl}
+              alt={getWallpaperLabel(selectedWallpaper)}
+              className="mt-4 h-72 w-full rounded-3xl object-cover"
+              onLoad={() => {
+                // #region debug-point F:preview-image-loaded
+                ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "preview-delete-regression", runId: "pre-fix", hypothesisId: "F", location: "src/components/wallpapers-view.tsx:img:onLoad", msg: "[DEBUG] wallpaper preview image loaded", data: { wallpaperId: selectedWallpaper.id, previewUrl: selectedWallpaper.previewUrl }, ts: Date.now() }) }).catch(() => {}) })()
+                // #endregion
+              }}
+              onError={() => {
+                // #region debug-point G:preview-image-error
+                ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "preview-delete-regression", runId: "pre-fix", hypothesisId: "G", location: "src/components/wallpapers-view.tsx:img:onError", msg: "[DEBUG] wallpaper preview image failed to load", data: { wallpaperId: selectedWallpaper.id, previewUrl: selectedWallpaper.previewUrl }, ts: Date.now() }) }).catch(() => {}) })()
+                // #endregion
+              }}
+            />
             <div className="mt-4 grid gap-3 text-sm text-slate-300">
               <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">Checksum: {selectedWallpaper.checksumSha256}</div>
               <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">File size: {selectedWallpaper.fileSizeBytes.toLocaleString()} bytes</div>
@@ -89,7 +103,6 @@ export function WallpapersView({ wallpapers }: WallpapersViewProps) {
                     status: selectedWallpaper.status === 'active' ? 'archived' : 'active',
                   })
                 }
-                disabled={selectedWallpaper.status === 'deleted'}
                 className="rounded-2xl border border-white/10 px-4 py-3 text-sm text-white transition hover:bg-white/10"
               >
                 Toggle Status
@@ -97,7 +110,6 @@ export function WallpapersView({ wallpapers }: WallpapersViewProps) {
               <button
                 type="button"
                 onClick={() => void triggerManualPublish(selectedWallpaper.id)}
-                disabled={selectedWallpaper.status === 'deleted'}
                 className="rounded-2xl bg-amber-300 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-amber-200"
               >
                 Manual Publish

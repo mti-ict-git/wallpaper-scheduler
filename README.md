@@ -58,6 +58,9 @@ Run the full stack:
 npm run dev
 ```
 
+Local dev note:
+- `npm run dev` automatically stops any process that is already listening on the local API port and the default Vite port before starting the stack again. This avoids stale frontend/backend processes and repeated `EADDRINUSE` failures during local development.
+
 Default development endpoints:
 - Frontend: `http://localhost:5173` or the next available Vite port
 - API: `http://localhost:3011`

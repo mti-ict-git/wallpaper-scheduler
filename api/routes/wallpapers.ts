@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { Router, type Request, type Response } from 'express'
+import { Router, type NextFunction, type Request, type Response } from 'express'
 import { z } from 'zod'
 import { writeAuditLog } from '../lib/audit.js'
 import { normalizeWallpaperImage } from '../lib/image-processing.js'
@@ -20,12 +20,6 @@ const updateSchema = z.object({
   name: z.string().min(2),
   description: z.string().nullable().optional(),
   status: z.enum(['active', 'archived']),
-})
-
-router.use(requireAuth)
-
-router.get('/', async (_request: Request, response: Response) => {
-  response.json(await listWallpapers())
 })
 
 router.get('/:wallpaperId/preview', async (request: Request, response: Response) => {
@@ -50,7 +44,13 @@ router.get('/:wallpaperId/preview', async (request: Request, response: Response)
   response.status(404).json({ error: 'Wallpaper preview is unavailable' })
 })
 
-router.post('/', uploadMiddleware.single('file'), async (request: Request, response: Response) => {
+router.use(requireAuth)
+
+router.get('/', async (_request: Request, response: Response) => {
+  response.json(await listWallpapers())
+})
+
+router.post('/', uploadMiddleware.single('file'), async (request: Request, response: Response, next: NextFunction) => {
   const file = request.file
   const authUser = request.authUser
 
@@ -59,32 +59,49 @@ router.post('/', uploadMiddleware.single('file'), async (request: Request, respo
     return
   }
 
-  const normalizedImage = await normalizeWallpaperImage(file.buffer)
-  const requestedName = typeof request.body.name === 'string' ? request.body.name.trim() : ''
+  // #region debug-point H:upload-route-entry
+  ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "preview-delete-regression", runId: "pre-fix", hypothesisId: "H", location: "api/routes/wallpapers.ts:upload:entry", msg: "[DEBUG] upload wallpaper route entry", data: { originalFilename: file.originalname, mimeType: file.mimetype, fileSizeBytes: file.size, hasAuthUser: Boolean(authUser) }, ts: Date.now() }) }).catch(() => {}) })()
+  // #endregion
 
-  const wallpaper = await createWallpaper({
-    name: requestedName || file.originalname,
-    description: request.body.description ? String(request.body.description) : null,
-    originalFilename: file.originalname,
-    mimeType: normalizedImage.mimeType,
-    fileSizeBytes: normalizedImage.fileSizeBytes,
-    checksumSha256: normalizedImage.checksumSha256,
-    widthPx: normalizedImage.widthPx,
-    heightPx: normalizedImage.heightPx,
-    imageBuffer: normalizedImage.imageBuffer,
-    createdBy: authUser.id,
-  })
+  try {
+    const normalizedImage = await normalizeWallpaperImage(file.buffer)
+    // #region debug-point I:upload-normalized
+    ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "preview-delete-regression", runId: "pre-fix", hypothesisId: "I", location: "api/routes/wallpapers.ts:upload:normalized", msg: "[DEBUG] upload wallpaper normalized image", data: { originalFilename: file.originalname, normalizedMimeType: normalizedImage.mimeType, normalizedFileSizeBytes: normalizedImage.fileSizeBytes, widthPx: normalizedImage.widthPx, heightPx: normalizedImage.heightPx }, ts: Date.now() }) }).catch(() => {}) })()
+    // #endregion
+    const requestedName = typeof request.body.name === 'string' ? request.body.name.trim() : ''
 
-  await writeAuditLog({
-    actorType: 'user',
-    actorUserId: authUser.id,
-    action: 'wallpaper_uploaded',
-    entityType: 'wallpaper',
-    entityId: wallpaper.id,
-    payloadJson: { name: wallpaper.name },
-  })
+    const wallpaper = await createWallpaper({
+      name: requestedName || file.originalname,
+      description: request.body.description ? String(request.body.description) : null,
+      originalFilename: file.originalname,
+      mimeType: normalizedImage.mimeType,
+      fileSizeBytes: normalizedImage.fileSizeBytes,
+      checksumSha256: normalizedImage.checksumSha256,
+      widthPx: normalizedImage.widthPx,
+      heightPx: normalizedImage.heightPx,
+      imageBuffer: normalizedImage.imageBuffer,
+      createdBy: authUser.id,
+    })
+    // #region debug-point J:upload-created
+    ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "preview-delete-regression", runId: "pre-fix", hypothesisId: "J", location: "api/routes/wallpapers.ts:upload:created", msg: "[DEBUG] upload wallpaper created database record", data: { wallpaperId: wallpaper.id, name: wallpaper.name, status: wallpaper.status }, ts: Date.now() }) }).catch(() => {}) })()
+    // #endregion
 
-  response.status(201).json(wallpaper)
+    await writeAuditLog({
+      actorType: 'user',
+      actorUserId: authUser.id,
+      action: 'wallpaper_uploaded',
+      entityType: 'wallpaper',
+      entityId: wallpaper.id,
+      payloadJson: { name: wallpaper.name },
+    })
+
+    response.status(201).json(wallpaper)
+  } catch (error) {
+    // #region debug-point K:upload-route-catch
+    ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "preview-delete-regression", runId: "pre-fix", hypothesisId: "K", location: "api/routes/wallpapers.ts:upload:catch", msg: "[DEBUG] upload wallpaper route catch", data: { originalFilename: file.originalname, mimeType: file.mimetype, fileSizeBytes: file.size, error: error instanceof Error ? error.message : String(error) }, ts: Date.now() }) }).catch(() => {}) })()
+    // #endregion
+    next(error)
+  }
 })
 
 router.patch('/:wallpaperId', async (request: Request, response: Response) => {

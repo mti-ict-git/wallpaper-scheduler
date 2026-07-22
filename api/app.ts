@@ -56,6 +56,9 @@ app.use(
 )
 
 app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
+  // #region debug-point L:global-error-handler
+  ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "preview-delete-regression", runId: "pre-fix", hypothesisId: "L", location: "api/app.ts:error-handler", msg: "[DEBUG] global error handler captured error", data: { error: error.message, stack: error.stack ?? null }, ts: Date.now() }) }).catch(() => {}) })()
+  // #endregion
   res.status(500).json({
     success: false,
     error: 'Server internal error',

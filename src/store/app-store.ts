@@ -62,12 +62,25 @@ type AppState = {
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {
+  const clonedBodyText = await response.clone().text().catch(() => '')
+  // #region debug-point A:parse-response-received
+  ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "preview-delete-regression", runId: "pre-fix", hypothesisId: "A", location: "src/store/app-store.ts:parseResponse", msg: "[DEBUG] parseResponse received response", data: { url: response.url, status: response.status, ok: response.ok, contentType: response.headers.get('content-type'), contentLength: response.headers.get('content-length'), bodyLength: clonedBodyText.length, bodyPreview: clonedBodyText.slice(0, 180) }, ts: Date.now() }) }).catch(() => {}) })()
+  // #endregion
   if (!response.ok) {
     const error = (await response.json().catch(() => ({ error: 'Request gagal' }))) as ApiError
     throw new Error(error.error)
   }
 
-  return response.json() as Promise<T>
+  if (response.status === 204 || !clonedBodyText.trim()) {
+    return undefined as T
+  }
+
+  return response.json().catch((error) => {
+    // #region debug-point B:parse-response-json-failed
+    ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "preview-delete-regression", runId: "pre-fix", hypothesisId: "B", location: "src/store/app-store.ts:parseResponse", msg: "[DEBUG] parseResponse JSON parsing failed", data: { url: response.url, status: response.status, bodyLength: clonedBodyText.length, error: error instanceof Error ? error.message : String(error) }, ts: Date.now() }) }).catch(() => {}) })()
+    // #endregion
+    throw error
+  }) as Promise<T>
 }
 
 function buildHeaders(token: string | null, json = true) {

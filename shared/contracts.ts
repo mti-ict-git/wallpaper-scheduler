@@ -26,7 +26,7 @@ export type WallpaperRecord = {
   checksumSha256: string
   widthPx: number | null
   heightPx: number | null
-  status: 'active' | 'archived' | 'deleted'
+  status: 'active' | 'archived'
   previewUrl: string
   createdAt: string
 }

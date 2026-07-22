@@ -39,7 +39,6 @@ async function loadSchedules() {
         w.name as wallpaper_name
       from schedules s
       inner join wallpapers w on w.id = s.wallpaper_id
-      where w.status <> 'deleted'
       order by s.start_at_utc asc
     `,
   )

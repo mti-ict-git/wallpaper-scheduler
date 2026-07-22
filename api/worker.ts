@@ -33,7 +33,7 @@ async function processScheduleActivation() {
     }
 
     const fallbackWallpaper = await findWallpaperById(config.fallbackWallpaperId)
-    if (!fallbackWallpaper || fallbackWallpaper.status === 'deleted') {
+    if (!fallbackWallpaper) {
       return
     }
 
@@ -60,7 +60,7 @@ async function processScheduleActivation() {
   }
 
   const wallpaper = await findWallpaperById(activeSchedule.wallpaperId)
-  if (!wallpaper || wallpaper.status === 'deleted') {
+  if (!wallpaper) {
     return
   }
 

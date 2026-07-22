@@ -12,7 +12,7 @@ type WallpaperRow = {
   checksum_sha256: string
   width_px: number | null
   height_px: number | null
-  status: 'active' | 'archived' | 'deleted'
+  status: 'active' | 'archived'
   created_at: Date
   image_blob?: Buffer
   stored_mime_type?: string
@@ -37,7 +37,7 @@ function mapWallpaperRow(row: WallpaperRow): WallpaperRecord {
 }
 
 export async function listWallpapers() {
-  const result = await query<WallpaperRow>("select * from wallpapers where status <> 'deleted' order by created_at desc")
+  const result = await query<WallpaperRow>('select * from wallpapers order by created_at desc')
   return result.rows.map(mapWallpaperRow)
 }
 
@@ -98,7 +98,7 @@ export async function updateWallpaper(input: {
   id: string
   name: string
   description: string | null
-  status: 'active' | 'archived' | 'deleted'
+  status: 'active' | 'archived'
 }) {
   const result = await query<WallpaperRow>(
     `
@@ -120,7 +120,7 @@ export async function deleteWallpaper(id: string) {
   await query('begin')
 
   try {
-    const existingResult = await query<{ id: string }>("select id from wallpapers where id = $1 and status <> 'deleted' limit 1", [id])
+    const existingResult = await query<{ id: string }>('select id from wallpapers where id = $1 limit 1', [id])
     // #region debug-point B:delete-wallpaper-existing
     ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "delete-wallpaper-crash", runId: "pre-fix", hypothesisId: "B", location: "api/repositories/wallpaper-repository.ts:deleteWallpaper:existing", msg: "[DEBUG] deleteWallpaper existing check", data: { wallpaperId: id, rowCount: existingResult.rowCount }, ts: Date.now() }) }).catch(() => {}) })()
     // #endregion
@@ -129,29 +129,12 @@ export async function deleteWallpaper(id: string) {
       return false
     }
 
-    await query(
-      `
-        update wallpapers
-        set status = 'deleted',
-            name = concat(name, ' [deleted]'),
-            updated_at = now()
-        where id = $1
-      `,
-      [id],
-    )
+    await query('delete from publish_jobs where wallpaper_id = $1', [id])
     // #region debug-point C:delete-wallpaper-updated
-    ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "delete-wallpaper-crash", runId: "pre-fix", hypothesisId: "C", location: "api/repositories/wallpaper-repository.ts:deleteWallpaper:updated", msg: "[DEBUG] deleteWallpaper updated wallpaper status", data: { wallpaperId: id }, ts: Date.now() }) }).catch(() => {}) })()
+    ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "delete-wallpaper-crash", runId: "pre-fix", hypothesisId: "C", location: "api/repositories/wallpaper-repository.ts:deleteWallpaper:updated", msg: "[DEBUG] deleteWallpaper removed publish job references", data: { wallpaperId: id }, ts: Date.now() }) }).catch(() => {}) })()
     // #endregion
 
-    await query(
-      `
-        update schedules
-        set enabled = false,
-            updated_at = now()
-        where wallpaper_id = $1 and enabled = true
-      `,
-      [id],
-    )
+    await query('delete from schedules where wallpaper_id = $1', [id])
 
     await query(
       `
@@ -163,6 +146,8 @@ export async function deleteWallpaper(id: string) {
       `,
       [id],
     )
+
+    await query('delete from wallpapers where id = $1', [id])
 
     await query(
       `
