@@ -89,6 +89,7 @@ export function WallpapersView({ wallpapers }: WallpapersViewProps) {
                     status: selectedWallpaper.status === 'active' ? 'archived' : 'active',
                   })
                 }
+                disabled={selectedWallpaper.status === 'deleted'}
                 className="rounded-2xl border border-white/10 px-4 py-3 text-sm text-white transition hover:bg-white/10"
               >
                 Toggle Status
@@ -96,6 +97,7 @@ export function WallpapersView({ wallpapers }: WallpapersViewProps) {
               <button
                 type="button"
                 onClick={() => void triggerManualPublish(selectedWallpaper.id)}
+                disabled={selectedWallpaper.status === 'deleted'}
                 className="rounded-2xl bg-amber-300 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-amber-200"
               >
                 Manual Publish

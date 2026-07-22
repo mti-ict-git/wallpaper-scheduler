@@ -152,6 +152,8 @@ paths:
       responses:
         "204":
           description: Wallpaper deleted
+        "409":
+          description: Wallpaper is still referenced by schedules, publish history, or active state
 
   /schedules:
     get:

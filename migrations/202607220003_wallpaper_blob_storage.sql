@@ -22,3 +22,10 @@ alter table wallpapers
 
 alter table publish_jobs
   alter column source_storage_path drop not null;
+
+alter table wallpapers
+  drop constraint if exists wallpapers_status_check;
+
+alter table wallpapers
+  add constraint wallpapers_status_check
+  check (status in ('active', 'archived', 'deleted'));

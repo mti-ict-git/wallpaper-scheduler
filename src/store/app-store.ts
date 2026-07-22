@@ -191,10 +191,12 @@ export const useAppStore = create<AppState>((set, get) => ({
       return
     }
 
-    await fetch(`/api/wallpapers/${id}`, {
-      method: 'DELETE',
-      headers: buildHeaders(token, false),
-    })
+    await parseResponse(
+      await fetch(`/api/wallpapers/${id}`, {
+        method: 'DELETE',
+        headers: buildHeaders(token, false),
+      }),
+    )
     await get().loadAll()
   },
   saveSchedule: async (payload) => {

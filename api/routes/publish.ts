@@ -34,6 +34,11 @@ router.post('/manual', requireRole(['admin']), async (request: Request, response
     return
   }
 
+  if (wallpaper.status === 'deleted') {
+    response.status(409).json({ error: 'Wallpaper sudah dihapus dan tidak bisa dipublish lagi' })
+    return
+  }
+
   const jobId = await createPublishJob({
     triggerType: 'manual',
     wallpaperId: wallpaper.id,

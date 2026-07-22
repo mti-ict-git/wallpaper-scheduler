@@ -9,6 +9,12 @@
 3. Verify preview, metadata, and checksum.
 4. Create or update the relevant schedule.
 
+### Archive Or Delete Wallpaper
+
+1. Archive a wallpaper when it should no longer be selected for new schedules or publishes.
+2. Delete a wallpaper only when it has no remaining schedule references, publish history, or active-state references.
+3. If deletion is blocked by references, keep it archived to preserve audit history.
+
 ### Force Publish
 
 1. Confirm the intended wallpaper is correct.

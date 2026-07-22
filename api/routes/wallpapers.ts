@@ -119,22 +119,45 @@ router.patch('/:wallpaperId', async (request: Request, response: Response) => {
 })
 
 router.delete('/:wallpaperId', async (request: Request, response: Response) => {
+  // #region debug-point G:delete-wallpaper-route-entry
+  ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "delete-wallpaper-crash", runId: "pre-fix", hypothesisId: "G", location: "api/routes/wallpapers.ts:delete", msg: "[DEBUG] delete wallpaper route entry", data: { wallpaperId: request.params.wallpaperId, hasAuthUser: Boolean(request.authUser) }, ts: Date.now() }) }).catch(() => {}) })()
+  // #endregion
   if (!request.authUser) {
     response.status(401).json({ error: 'Unauthorized' })
     return
   }
 
-  await deleteWallpaper(request.params.wallpaperId)
-  await writeAuditLog({
-    actorType: 'user',
-    actorUserId: request.authUser.id,
-    action: 'wallpaper_deleted',
-    entityType: 'wallpaper',
-    entityId: request.params.wallpaperId,
-    payloadJson: {},
-  })
+  try {
+    const deleted = await deleteWallpaper(request.params.wallpaperId)
+    // #region debug-point H:delete-wallpaper-route-after-delete
+    ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "delete-wallpaper-crash", runId: "pre-fix", hypothesisId: "H", location: "api/routes/wallpapers.ts:delete:after-delete", msg: "[DEBUG] delete wallpaper route after repository call", data: { wallpaperId: request.params.wallpaperId, deleted }, ts: Date.now() }) }).catch(() => {}) })()
+    // #endregion
+    if (!deleted) {
+      response.status(404).json({ error: 'Wallpaper tidak ditemukan' })
+      return
+    }
 
-  response.status(204).send()
+    await writeAuditLog({
+      actorType: 'user',
+      actorUserId: request.authUser.id,
+      action: 'wallpaper_deleted',
+      entityType: 'wallpaper',
+      entityId: request.params.wallpaperId,
+      payloadJson: {},
+    })
+    // #region debug-point I:delete-wallpaper-route-audit
+    ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "delete-wallpaper-crash", runId: "pre-fix", hypothesisId: "I", location: "api/routes/wallpapers.ts:delete:audit", msg: "[DEBUG] delete wallpaper route audit log success", data: { wallpaperId: request.params.wallpaperId }, ts: Date.now() }) }).catch(() => {}) })()
+    // #endregion
+
+    response.status(204).send()
+  } catch (error) {
+    // #region debug-point J:delete-wallpaper-route-catch
+    ;(() => { fetch("http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: "delete-wallpaper-crash", runId: "pre-fix", hypothesisId: "J", location: "api/routes/wallpapers.ts:delete:catch", msg: "[DEBUG] delete wallpaper route catch", data: { wallpaperId: request.params.wallpaperId, error: error instanceof Error ? error.message : String(error) }, ts: Date.now() }) }).catch(() => {}) })()
+    // #endregion
+    response.status(500).json({
+      error: error instanceof Error ? error.message : 'Delete wallpaper gagal',
+    })
+  }
 })
 
 export default router
