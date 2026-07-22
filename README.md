@@ -1,11 +1,11 @@
 # Wallpaper Scheduler
 
-Wallpaper Scheduler is a TypeScript full-stack application for uploading wallpapers, scheduling activation by date and time, and publishing the active wallpaper as `Wallpaper.jpg` to a mounted `SYSVOL` target path.
+Wallpaper Scheduler is a TypeScript full-stack application for uploading wallpapers, normalizing them into Full HD JPEG assets, scheduling activation by date and time, and publishing the active wallpaper as `Wallpaper.jpg` to a configured target path.
 
 ## Current Status
 
 Active phase:
-- `Phase 5 - Client Rollout and Acceptance`
+- `Phase 5 - AD/GPO Operational Acceptance`
 
 Recently completed:
 - `Phase 4 - Production Domain Validation`

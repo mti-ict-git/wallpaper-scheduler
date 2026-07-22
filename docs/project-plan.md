@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Membangun sistem berbasis web yang memungkinkan admin menjadwalkan wallpaper domain berdasarkan tanggal dan jam tertentu, lalu mem-publish wallpaper aktif sebagai `Wallpaper.jpg` ke target share yang digunakan oleh lingkungan Active Directory.
+Membangun sistem berbasis web yang memungkinkan admin menjadwalkan wallpaper domain berdasarkan tanggal dan jam tertentu, menormalkan setiap upload menjadi JPEG Full HD, lalu mem-publish wallpaper aktif sebagai `Wallpaper.jpg` ke target share yang digunakan oleh lingkungan Active Directory.
 
 ## Business Goal
 
@@ -21,7 +21,7 @@ Membangun sistem berbasis web yang memungkinkan admin menjadwalkan wallpaper dom
 
 - Web UI untuk upload wallpaper, manajemen schedule, dan monitoring publish status.
 - Scheduler berbasis timezone.
-- Publisher yang membangun file final `Wallpaper.jpg`.
+- Publisher yang membangun file final `Wallpaper.jpg` dari wallpaper source hasil normalisasi yang disimpan di database.
 - Integrasi ke share target untuk domain wallpaper distribution.
 - Audit log dan job history.
 - Dockerized deployment.

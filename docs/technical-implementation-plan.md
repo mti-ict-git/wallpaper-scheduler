@@ -10,7 +10,7 @@ Core components:
 - `scheduler-worker`: proses background untuk evaluasi schedule dan enqueue publish.
 - `publisher`: modul worker yang menyiapkan `Wallpaper.jpg` dan mengirim ke target path.
 - `db`: PostgreSQL untuk metadata dan audit.
-- `storage`: object storage atau mounted volume untuk menyimpan wallpaper source.
+- `storage`: database blob untuk menyimpan wallpaper source hasil normalisasi, plus folder simulasi publish untuk local development.
 
 ## Recommended Tech Stack
 
@@ -25,12 +25,12 @@ Core components:
 ## Runtime Flow
 
 1. User upload wallpaper ke API.
-2. API menyimpan file ke storage dan metadata ke database.
+2. API menormalkan upload menjadi JPEG Full HD, menurunkan kualitas jika hasilnya di atas 3 MB, lalu menyimpan blob dan metadata ke database.
 3. User membuat schedule via API.
 4. Scheduler worker polling tiap interval tertentu.
 5. Worker menentukan wallpaper aktif saat ini.
 6. Jika wallpaper aktif berubah atau manual publish dipicu, worker membuat publish job.
-7. Publisher mengambil wallpaper source, melakukan validasi, lalu menyiapkan file output `Wallpaper.jpg`.
+7. Publisher mengambil blob wallpaper hasil normalisasi dari database, melakukan validasi, lalu menyiapkan file output `Wallpaper.jpg`.
 8. Publisher copy ke staging path di target share.
 9. Publisher melakukan replace ke path final.
 10. Hasil publish dicatat ke database dan tampil di UI.
@@ -48,9 +48,9 @@ Core components:
 
 Menulis langsung ke SYSVOL dari container memerlukan validasi environment secara spesifik. Konfigurasi yang sudah dikonfirmasi untuk fase awal:
 - Host Docker berjalan di Ubuntu.
-- Ubuntu host melakukan mount CIFS/SMB ke share SYSVOL target.
-- Container menerima mounted path yang stabil, misalnya `/app/scripts`.
-- Gunakan service account domain dengan hak tulis minimum hanya ke folder target.
+- Environment production dapat memakai CIFS/SMB mount ke share SYSVOL target.
+- Local development memakai folder simulasi di dalam project agar publish flow tetap bisa diverifikasi tanpa mount AD nyata.
+- Gunakan service account domain dengan hak tulis minimum hanya ke folder target produksi.
 
 ## Scheduling Rules
 
@@ -88,6 +88,6 @@ Menulis langsung ke SYSVOL dari container memerlukan validasi environment secara
 
 - Authentication: local auth internal.
 - Runtime host: Ubuntu with Docker Compose.
-- Share integration: CIFS mount from Ubuntu host into container path.
-- Publish strategy: tulis `Wallpaper.jpg` ke mounted SYSVOL path yang telah ditentukan.
+- Share integration: production share or local simulated publish path, depending on environment.
+- Publish strategy: tulis `Wallpaper.jpg` ke target path yang telah ditentukan, dengan local development memakai folder simulasi di project.
 

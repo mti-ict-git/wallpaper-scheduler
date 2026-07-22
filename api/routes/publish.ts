@@ -39,7 +39,6 @@ router.post('/manual', requireRole(['admin']), async (request: Request, response
     wallpaperId: wallpaper.id,
     scheduleId: null,
     triggeredBy: request.authUser.id,
-    sourceStoragePath: wallpaper.storagePath,
     finalTargetPath: path.posix.join(appConfig.sharedFolderPath, 'Wallpaper.jpg'),
   })
 

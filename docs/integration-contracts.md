@@ -8,6 +8,7 @@ Purpose:
 Contract:
 - Input dari sistem: file wallpaper source yang sudah divalidasi.
 - Output dari sistem: file `Wallpaper.jpg` di target path yang stabil.
+- Input upload akan dinormalisasi menjadi JPEG Full HD dan disimpan sebagai blob di database sebelum dipublish.
 - Expected target:
   - UNC share atau mounted path yang dibaca oleh policy wallpaper.
 

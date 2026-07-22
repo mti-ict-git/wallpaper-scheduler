@@ -5,6 +5,7 @@ import { resolveSecret } from './lib/secrets.js'
 dotenv.config()
 
 const rootDir = process.cwd()
+const localDevelopmentSharePath = path.resolve(rootDir, 'dev-simulated-share')
 
 function toNumber(value: string | undefined, fallback: number) {
   const parsed = Number(value)
@@ -46,7 +47,7 @@ export const appConfig = {
   }).value,
   uploadPath: path.resolve(rootDir, process.env.STORAGE_LOCAL_PATH ?? 'storage/wallpapers'),
   migrationsPath: path.resolve(rootDir, 'migrations'),
-  sharedFolderPath: process.env.SHARED_FOLDER_PATH ?? '/app/scripts',
+  sharedFolderPath: process.env.SHARED_FOLDER_PATH ?? (process.env.APP_ENV === 'development' ? localDevelopmentSharePath : '/app/scripts'),
   cifsSharePath: process.env.CIFS_SHARE_PATH ?? '',
   schedulerPollIntervalSeconds: toNumber(process.env.SCHEDULER_POLL_INTERVAL_SECONDS, 30),
   publishRetryCount: toNumber(process.env.PUBLISH_RETRY_COUNT, 3),

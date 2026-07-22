@@ -27,13 +27,13 @@ export async function listBackups(): Promise<BackupSummary> {
   const entries = await fs.readdir(appConfig.backupPath)
   const backupFiles = await Promise.all(
     entries
-      .filter((entry) => entry.endsWith('.json') || entry.endsWith('.jpeg'))
+      .filter((entry) => entry.endsWith('.json') || entry.endsWith('.jpg') || entry.endsWith('.jpeg'))
       .map(async (entry) => {
         const fullPath = path.join(appConfig.backupPath, entry)
         const stats = await getFileStats(fullPath)
         return {
           id: entry,
-          type: entry.endsWith('.jpeg') ? 'publish-target' : 'metadata',
+          type: entry.endsWith('.jpg') || entry.endsWith('.jpeg') ? 'publish-target' : 'metadata',
           fileName: entry,
           createdAt: stats.createdAt,
           sizeBytes: stats.sizeBytes,
@@ -92,7 +92,7 @@ export async function createPublishTargetBackup(actorUserId: string | null, targ
     throw new Error('Publish target file does not exist')
   }
 
-  const fileName = `publish-target-${new Date().toISOString().replace(/[:.]/g, '-')}.jpeg`
+  const fileName = `publish-target-${new Date().toISOString().replace(/[:.]/g, '-')}.jpg`
   const backupPath = path.join(appConfig.backupPath, fileName)
   await fs.copyFile(targetPath, backupPath)
 

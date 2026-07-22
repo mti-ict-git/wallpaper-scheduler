@@ -3,7 +3,7 @@
 ## Active Phase
 
 Current active phase:
-- `Phase 5 - Client Rollout and Acceptance`
+- `Phase 5 - AD/GPO Operational Acceptance`
 
 Status:
 - `ready_to_start`
@@ -199,5 +199,42 @@ Validate the application against the mounted production-style target path, colle
 - Runtime publish probe completed successfully with write, read, and cleanup all marked successful.
 - Runtime metadata backup creation completed successfully and the artifact appeared in the backup inventory.
 - Runtime metadata restore drill completed successfully from the authenticated operations endpoint.
+- Phase status: `complete`
+
+## Phase 5 - AD/GPO Operational Acceptance
+
+### Objective
+
+Finalize the production publish artifact rules, normalize wallpaper source handling, and provide a safe development simulation path without requiring a live AD share.
+
+### Source Documents
+
+- `docs/functional-specification.md`
+- `docs/technical-implementation-plan.md`
+- `docs/database-schema-specification.md`
+- `docs/deployment-and-environment.md`
+- `docs/openapi.yaml`
+- `docs/testing-strategy.md`
+
+### Checklist
+
+- [x] Normalize all uploads into Full HD JPEG wallpaper assets.
+- [x] Compress normalized JPEG output when required to keep the publish source under the operational size target.
+- [x] Store normalized wallpaper source as database blob data instead of relying on file-backed source storage.
+- [x] Publish the final artifact as `Wallpaper.jpg`.
+- [x] Provide a local-development simulated publish folder inside the project and keep it excluded from source control.
+
+### Output
+
+- Upload, preview, schedule, and publish flows use normalized JPEG wallpaper source data stored in PostgreSQL.
+- Development environments can validate publish behavior without mounting a live AD share.
+
+### Challenge / Verification
+
+- Typecheck passed with `npm run check`.
+- Targeted automated tests passed with `npm test -- api/tests/image-processing.test.ts api/tests/share-service.test.ts api/tests/validation-service.test.ts src/tests/scheduler.test.ts`.
+- Verified upload normalization logic converts images into Full HD JPEG payloads that stay under the operational size ceiling.
+- Verified local simulated publish directory remains writable through share validation and publish probe checks.
+- OpenAPI reviewed and updated because wallpaper upload semantics changed: `name` is no longer required and uploads are normalized internally.
 - Phase status: `complete`
 

@@ -89,14 +89,14 @@ paths:
           description: Wallpaper list
     post:
       tags: [Wallpapers]
-      summary: Upload wallpaper
+      summary: Upload wallpaper and normalize it into Full HD JPEG storage
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
               type: object
-              required: [file, name]
+              required: [file]
               properties:
                 file:
                   type: string

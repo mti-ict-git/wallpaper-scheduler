@@ -13,11 +13,12 @@
 
 ## Confirmed Decisions
 
-- The initial target share is `SYSVOL` exposed through a CIFS mount.
+- The initial production target share is `SYSVOL`, while local development uses an in-project simulated publish folder.
 - The Docker host runs on Ubuntu.
 - The initial authentication model is local application auth.
 - The application writes to a stable mounted share path inside the container.
 - The publish artifact name remains `Wallpaper.jpg`.
+- Uploaded source files are normalized into Full HD JPEG and stored as database blobs before publish.
 
 ## Remaining Operational Risks
 

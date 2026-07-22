@@ -33,6 +33,20 @@ function formatTimezoneOption(timeZone: string) {
   }
 }
 
+function getWallpaperLabel(wallpaper: WallpaperRecord) {
+  const trimmedName = wallpaper.name.trim()
+  if (trimmedName) {
+    return trimmedName
+  }
+
+  const trimmedFileName = wallpaper.originalFilename.trim()
+  if (trimmedFileName) {
+    return trimmedFileName
+  }
+
+  return `Wallpaper ${wallpaper.id.slice(0, 8)}`
+}
+
 type SchedulesViewProps = {
   schedules: ScheduleRecord[]
   wallpapers: WallpaperRecord[]
@@ -122,7 +136,7 @@ export function SchedulesView({ schedules, wallpapers, timezone }: SchedulesView
             ) : (
               wallpapers.map((wallpaper) => (
                 <option key={wallpaper.id} value={wallpaper.id} className="bg-slate-950 text-white">
-                  {wallpaper.name}
+                  {getWallpaperLabel(wallpaper)}
                 </option>
               ))
             )}

@@ -42,7 +42,6 @@ async function processScheduleActivation() {
       wallpaperId: fallbackWallpaper.id,
       scheduleId: null,
       triggeredBy: null,
-      sourceStoragePath: fallbackWallpaper.storagePath,
       finalTargetPath: buildPublishTargetFileName(),
     })
     return
@@ -70,7 +69,6 @@ async function processScheduleActivation() {
     wallpaperId: wallpaper.id,
     scheduleId: activeSchedule.id,
     triggeredBy: null,
-    sourceStoragePath: wallpaper.storagePath,
     finalTargetPath: buildPublishTargetFileName(),
   })
 }

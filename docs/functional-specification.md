@@ -15,7 +15,10 @@ Tim IT membutuhkan cara terpusat untuk menjadwalkan wallpaper organisasi berdasa
 ### 2. Wallpaper Management
 
 - User dapat upload wallpaper image.
-- Sistem menyimpan metadata wallpaper: nama, deskripsi, ukuran, checksum, dan status aktif/nonaktif.
+- Sistem menormalkan apapun yang diupload menjadi JPEG Full HD (`1920x1080`).
+- Jika hasil JPEG di atas `3 MB`, sistem menurunkan kualitas JPEG sampai ukuran final berada di bawah batas operasional.
+- Sistem menyimpan metadata wallpaper: nama, deskripsi, ukuran hasil normalisasi, checksum, dan status aktif/nonaktif.
+- Sistem menyimpan blob gambar hasil normalisasi di database untuk preview dan publish.
 - Sistem menolak file yang tidak sesuai format atau melampaui batas ukuran.
 - Sistem menampilkan preview wallpaper.
 
@@ -43,6 +46,7 @@ Tim IT membutuhkan cara terpusat untuk menjadwalkan wallpaper organisasi berdasa
 ### 5. Publish Workflow
 
 - Ketika wallpaper aktif berubah, sistem membuat artefak final dengan nama `Wallpaper.jpg`.
+- Artefak final selalu berasal dari hasil normalisasi JPEG Full HD yang tersimpan di database.
 - Sistem mem-publish artefak final ke target share yang dikonfigurasi.
 - Publish dapat berjalan otomatis dari scheduler dan dapat dipicu manual dari UI.
 - Sistem menggunakan staging file lalu replace agar mengurangi risiko file korup.

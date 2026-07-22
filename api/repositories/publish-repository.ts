@@ -57,7 +57,6 @@ export async function createPublishJob(input: {
   wallpaperId: string
   scheduleId: string | null
   triggeredBy: string | null
-  sourceStoragePath: string
   finalTargetPath: string
 }) {
   const result = await query<{ id: string }>(
@@ -66,7 +65,7 @@ export async function createPublishJob(input: {
       values ($1, $2, $3, $4, 'pending', $5, $6)
       returning id
     `,
-    [input.triggerType, input.triggeredBy, input.wallpaperId, input.scheduleId, input.sourceStoragePath, input.finalTargetPath],
+    [input.triggerType, input.triggeredBy, input.wallpaperId, input.scheduleId, null, input.finalTargetPath],
   )
 
   return result.rows[0]?.id as string
@@ -95,12 +94,19 @@ export async function claimNextPublishJob() {
 
 export async function getPublishJobById(id: string) {
   const result = await query<
-    PublishJobRow & { source_storage_path: string; final_target_path: string; checksum_sha256: string | null; staging_target_path: string | null }
+    PublishJobRow & {
+      source_storage_path: string | null
+      final_target_path: string
+      checksum_sha256: string | null
+      staging_target_path: string | null
+      image_blob: Buffer | null
+    }
   >(
     `
       select
         pj.*,
-        w.name as wallpaper_name
+        w.name as wallpaper_name,
+        w.image_blob
       from publish_jobs pj
       inner join wallpapers w on w.id = pj.wallpaper_id
       where pj.id = $1

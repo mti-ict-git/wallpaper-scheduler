@@ -2,7 +2,7 @@
 
 ## Design Goals
 
-- Menyimpan metadata wallpaper dan file source terpisah dari artefak publish.
+- Menyimpan metadata wallpaper dan hasil source image ter-normalisasi langsung di database.
 - Mendukung schedule berbasis waktu, priority, dan enabled flag.
 - Menyimpan publish history dan audit trail.
 
@@ -26,19 +26,21 @@ Fields:
 ## `wallpapers`
 
 Purpose:
-- Menyimpan metadata wallpaper yang diupload.
+- Menyimpan metadata wallpaper yang diupload beserta blob gambar hasil normalisasi.
 
 Fields:
 - `id` UUID PK
 - `name` text not null
 - `description` text null
-- `storage_path` text not null
 - `original_filename` text not null
 - `mime_type` text not null
 - `file_size_bytes` bigint not null
 - `checksum_sha256` text not null
 - `width_px` integer null
 - `height_px` integer null
+- `image_blob` bytea not null
+- `stored_mime_type` text not null
+- `stored_file_size_bytes` bigint not null
 - `status` text not null default `active`
 - `created_by` UUID FK `users.id`
 - `created_at` timestamptz not null
@@ -98,7 +100,7 @@ Fields:
 - `wallpaper_id` UUID FK `wallpapers.id` not null
 - `schedule_id` UUID FK `schedules.id` null
 - `status` text not null
-- `source_storage_path` text not null
+- `source_storage_path` text null
 - `staging_target_path` text null
 - `final_target_path` text not null
 - `attempt_count` integer not null default 0
@@ -151,3 +153,5 @@ Fields:
 
 - Simpan semua timestamp di UTC.
 - Pertimbangkan extension `pgcrypto` atau `uuid-ossp` untuk UUID generation.
+- Normalize uploaded images to Full HD JPEG before storing them in `image_blob`.
+- Compress normalized JPEG output when needed so stored wallpaper payload stays under the configured upload ceiling.

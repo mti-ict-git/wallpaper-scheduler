@@ -3,7 +3,8 @@ import path from 'node:path'
 import { Router, type Request, type Response } from 'express'
 import { z } from 'zod'
 import { writeAuditLog } from '../lib/audit.js'
-import { computeSha256, moveUploadedFile, uploadMiddleware } from '../lib/upload.js'
+import { normalizeWallpaperImage } from '../lib/image-processing.js'
+import { uploadMiddleware } from '../lib/upload.js'
 import { requireAuth } from '../middleware/require-auth.js'
 import {
   createWallpaper,
@@ -34,7 +35,19 @@ router.get('/:wallpaperId/preview', async (request: Request, response: Response)
     return
   }
 
-  response.sendFile(path.resolve(wallpaper.storagePath))
+  if (wallpaper.imageBlob) {
+    response.setHeader('Content-Type', wallpaper.mimeType)
+    response.setHeader('Cache-Control', 'private, max-age=60')
+    response.send(wallpaper.imageBlob)
+    return
+  }
+
+  if (wallpaper.storagePath) {
+    response.sendFile(path.resolve(wallpaper.storagePath))
+    return
+  }
+
+  response.status(404).json({ error: 'Wallpaper preview is unavailable' })
 })
 
 router.post('/', uploadMiddleware.single('file'), async (request: Request, response: Response) => {
@@ -46,19 +59,19 @@ router.post('/', uploadMiddleware.single('file'), async (request: Request, respo
     return
   }
 
-  const uploadedPath = await moveUploadedFile(file)
-  const checksumSha256 = await computeSha256(uploadedPath)
+  const normalizedImage = await normalizeWallpaperImage(file.buffer)
+  const requestedName = typeof request.body.name === 'string' ? request.body.name.trim() : ''
 
   const wallpaper = await createWallpaper({
-    name: String(request.body.name ?? file.originalname),
+    name: requestedName || file.originalname,
     description: request.body.description ? String(request.body.description) : null,
-    storagePath: uploadedPath,
     originalFilename: file.originalname,
-    mimeType: file.mimetype,
-    fileSizeBytes: file.size,
-    checksumSha256,
-    widthPx: null,
-    heightPx: null,
+    mimeType: normalizedImage.mimeType,
+    fileSizeBytes: normalizedImage.fileSizeBytes,
+    checksumSha256: normalizedImage.checksumSha256,
+    widthPx: normalizedImage.widthPx,
+    heightPx: normalizedImage.heightPx,
+    imageBuffer: normalizedImage.imageBuffer,
     createdBy: authUser.id,
   })
 
@@ -109,11 +122,6 @@ router.delete('/:wallpaperId', async (request: Request, response: Response) => {
   if (!request.authUser) {
     response.status(401).json({ error: 'Unauthorized' })
     return
-  }
-
-  const wallpaper = await findWallpaperById(request.params.wallpaperId)
-  if (wallpaper?.storagePath) {
-    await fs.rm(wallpaper.storagePath, { force: true })
   }
 
   await deleteWallpaper(request.params.wallpaperId)

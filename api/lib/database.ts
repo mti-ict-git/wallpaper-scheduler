@@ -23,6 +23,7 @@ export async function query<T extends QueryResultRow>(text: string, values: unkn
 export async function ensureStorageDirectories() {
   await fs.mkdir(appConfig.uploadPath, { recursive: true })
   await fs.mkdir(path.join(appConfig.uploadPath, '.tmp'), { recursive: true })
+  await fs.mkdir(appConfig.sharedFolderPath, { recursive: true })
 }
 
 export async function runMigrations() {

@@ -63,6 +63,7 @@ Publish target:
 - The Docker host runs on Ubuntu.
 - The container receives a stable mounted internal path such as `SHARED_FOLDER_PATH`.
 - The application writes `Wallpaper.jpg` to that mounted path instead of dynamically discovering a target at runtime.
+- The application stores normalized wallpaper source data in PostgreSQL as image blobs, not as source files on a mounted share.
 
 Two supported mount patterns:
 
@@ -76,13 +77,20 @@ Two supported mount patterns:
    - `SHARED_FOLDER_PATH` should point to the final subdirectory inside that mounted share, for example `/app/sysvol/domain/scripts`.
    - The mount options can use `DOMAIN_NAME`, `DOMAIN_USERNAME`, `DOMAIN_PASSWORD`, and `CIFS_VERS` directly from environment injection.
 
+### Local Development Pattern
+
+- Local development should not depend on a real AD mount.
+- Use a simulated publish directory inside the project, for example `dev-simulated-share/domain/scripts`.
+- Exclude the simulated publish directory from source control.
+- Keep `SHARED_FOLDER_PATH` pointed at the simulated publish directory when `APP_ENV=development`.
+
 ## Share Access Flow
 
 1. Provide `CIFS_SHARE_PATH` and credentials securely (secret file, secret manager, or host file).
 2. Mount the share into the container using either:
    - host-managed mount + bind mount, or
    - Docker-managed CIFS volume + `driver_opts`.
-3. Point `SHARED_FOLDER_PATH` to the final target subdirectory inside the mounted share.
+3. Point `SHARED_FOLDER_PATH` to the final target subdirectory inside the mounted share, or to the local simulated publish path for development.
 4. Publisher writes staging and final files to the mounted `SHARED_FOLDER_PATH`.
 5. Credentials remain outside the image and outside source control.
 
@@ -105,6 +113,14 @@ CIFS_VERS=3.0
 BACKUP_PATH=/app/storage/backups
 ```
 
+Local development shape:
+
+```text
+APP_ENV=development
+SHARED_FOLDER_PATH=/app/dev-simulated-share/domain/scripts
+BACKUP_PATH=/app/storage/backups
+```
+
 ## Production Notes
 
 - Place credentials in Docker secrets, a secret manager, or dedicated host files.
@@ -113,6 +129,7 @@ BACKUP_PATH=/app/storage/backups
 - Mount a persistent backup directory into the application container.
 - Consider a reverse proxy with TLS termination.
 - On Ubuntu, choose either a host-managed mount or a Docker-managed CIFS volume depending on operational policy.
+- For development, prefer the simulated publish folder over live SYSVOL access.
 
 ## Verification Before Production
 

@@ -2,6 +2,20 @@ import { useMemo, useState } from 'react'
 import type { WallpaperRecord } from '@shared/contracts'
 import { useAppStore } from '@/store/app-store'
 
+function getWallpaperLabel(wallpaper: WallpaperRecord) {
+  const trimmedName = wallpaper.name.trim()
+  if (trimmedName) {
+    return trimmedName
+  }
+
+  const trimmedFileName = wallpaper.originalFilename.trim()
+  if (trimmedFileName) {
+    return trimmedFileName
+  }
+
+  return `Wallpaper ${wallpaper.id.slice(0, 8)}`
+}
+
 type WallpapersViewProps = {
   wallpapers: WallpaperRecord[]
 }
@@ -46,7 +60,7 @@ export function WallpapersView({ wallpapers }: WallpapersViewProps) {
               }`}
             >
               <div>
-                <p className="font-medium text-white">{wallpaper.name}</p>
+                <p className="font-medium text-white">{getWallpaperLabel(wallpaper)}</p>
                 <p className="text-sm text-slate-400">{wallpaper.originalFilename}</p>
               </div>
               <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-slate-300">{wallpaper.status}</span>
@@ -59,7 +73,7 @@ export function WallpapersView({ wallpapers }: WallpapersViewProps) {
         {selectedWallpaper ? (
           <>
             <h2 className="text-lg font-semibold text-white">Detail Wallpaper</h2>
-            <img src={selectedWallpaper.previewUrl} alt={selectedWallpaper.name} className="mt-4 h-72 w-full rounded-3xl object-cover" />
+            <img src={selectedWallpaper.previewUrl} alt={getWallpaperLabel(selectedWallpaper)} className="mt-4 h-72 w-full rounded-3xl object-cover" />
             <div className="mt-4 grid gap-3 text-sm text-slate-300">
               <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">Checksum: {selectedWallpaper.checksumSha256}</div>
               <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">File size: {selectedWallpaper.fileSizeBytes.toLocaleString()} bytes</div>
@@ -70,7 +84,7 @@ export function WallpapersView({ wallpapers }: WallpapersViewProps) {
                 type="button"
                 onClick={() =>
                   void updateWallpaper(selectedWallpaper.id, {
-                    name: selectedWallpaper.name,
+                    name: getWallpaperLabel(selectedWallpaper),
                     description: selectedWallpaper.description,
                     status: selectedWallpaper.status === 'active' ? 'archived' : 'active',
                   })

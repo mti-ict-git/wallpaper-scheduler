@@ -41,7 +41,14 @@ export async function executePublishJob(jobId: string, maxRetryCount: number, re
     return
   }
 
-  const sourceBuffer = await fs.readFile(job.source_storage_path)
+  let sourceBuffer = job.image_blob
+  if (!sourceBuffer) {
+    if (!job.source_storage_path) {
+      throw new Error('Wallpaper source is unavailable for publish job')
+    }
+
+    sourceBuffer = await fs.readFile(job.source_storage_path)
+  }
   const checksumSha256 = computeBufferSha256(sourceBuffer)
   const finalTargetPath = job.final_target_path
   const stagingTargetPath = `${finalTargetPath}.tmp`

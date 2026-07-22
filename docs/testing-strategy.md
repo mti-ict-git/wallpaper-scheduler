@@ -8,6 +8,7 @@
 - Environment validation tests for mounted share access.
 - Hardening tests for secret resolution, backup inventory, and retention operations.
 - Production validation tests for validation reporting, publish probe, and restore drill evidence.
+- Image normalization tests for JPEG conversion, Full HD resizing, and size reduction below the 3 MB target.
 
 ## High-Value Test Cases
 
@@ -22,10 +23,13 @@
 - Restore drill can be executed from a known-good backup artifact.
 - Validation report reflects mounted target state and backup inventory accurately.
 - Publish probe performs write, read, and cleanup successfully on the mounted target directory.
+- Uploads from PNG/JPEG/WebP are normalized into a stored JPEG blob with `1920x1080` dimensions.
+- Oversized normalized JPEG output is recompressed until it satisfies the operational size limit.
 
 ## Pre-Production Validation
 
 - Validate upload behavior with both valid and invalid files.
+- Validate that local development can publish into the simulated in-project folder without a live AD mount.
 - Validate publish to a real mounted share or a production-like staging share.
 - Validate observed propagation timing against client GPO refresh behavior.
 - Validate rename and rollback behavior on the real target share implementation.
