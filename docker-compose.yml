@@ -1,0 +1,19 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+      - "3011:3011"
+    env_file:
+      - .env
+    environment:
+      - STORAGE_LOCAL_PATH=/app/storage/wallpapers
+      - SHARED_FOLDER_PATH=/app/scripts
+      - PORT=3011
+    volumes:
+      - ./:/app
+      - /srv/wallpaper-scheduler/scripts:/app/scripts
+      - /srv/wallpaper-scheduler/storage:/app/storage
+    command: npm run dev

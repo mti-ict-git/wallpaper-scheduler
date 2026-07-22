@@ -1,0 +1,476 @@
+openapi: 3.0.3
+info:
+  title: Wallpaper Scheduler API
+  version: 0.1.0
+  description: >
+    Baseline API contract for wallpaper upload, schedule management,
+    publish operations, configuration, and monitoring.
+servers:
+  - url: http://localhost:3011/api
+tags:
+  - name: Auth
+  - name: Wallpapers
+  - name: Schedules
+  - name: Publish
+  - name: Config
+  - name: Operations
+  - name: Health
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login successful
+        "401":
+          description: Invalid credentials
+
+  /auth/bootstrap-status:
+    get:
+      tags: [Auth]
+      summary: Check bootstrap requirement
+      responses:
+        "200":
+          description: Bootstrap status
+
+  /auth/bootstrap:
+    post:
+      tags: [Auth]
+      summary: Create initial admin user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, displayName, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                displayName:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "201":
+          description: Initial admin created
+        "409":
+          description: Bootstrap already completed
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current authenticated user
+
+  /wallpapers:
+    get:
+      tags: [Wallpapers]
+      summary: List wallpapers
+      responses:
+        "200":
+          description: Wallpaper list
+    post:
+      tags: [Wallpapers]
+      summary: Upload wallpaper
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, name]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "201":
+          description: Wallpaper created
+        "400":
+          description: Invalid upload payload
+
+  /wallpapers/{wallpaperId}:
+    get:
+      tags: [Wallpapers]
+      summary: Get wallpaper detail
+      parameters:
+        - $ref: '#/components/parameters/WallpaperId'
+      responses:
+        "200":
+          description: Wallpaper detail
+        "404":
+          description: Wallpaper not found
+    patch:
+      tags: [Wallpapers]
+      summary: Update wallpaper metadata
+      parameters:
+        - $ref: '#/components/parameters/WallpaperId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                status:
+                  type: string
+                  enum: [active, archived]
+      responses:
+        "200":
+          description: Wallpaper updated
+    delete:
+      tags: [Wallpapers]
+      summary: Delete wallpaper
+      parameters:
+        - $ref: '#/components/parameters/WallpaperId'
+      responses:
+        "204":
+          description: Wallpaper deleted
+
+  /schedules:
+    get:
+      tags: [Schedules]
+      summary: List schedules
+      responses:
+        "200":
+          description: Schedule list
+    post:
+      tags: [Schedules]
+      summary: Create schedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleCreate'
+      responses:
+        "201":
+          description: Schedule created
+        "400":
+          description: Invalid schedule
+
+  /schedules/{scheduleId}:
+    get:
+      tags: [Schedules]
+      summary: Get schedule detail
+      parameters:
+        - $ref: '#/components/parameters/ScheduleId'
+      responses:
+        "200":
+          description: Schedule detail
+        "404":
+          description: Schedule not found
+    patch:
+      tags: [Schedules]
+      summary: Update schedule
+      parameters:
+        - $ref: '#/components/parameters/ScheduleId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleUpdate'
+      responses:
+        "200":
+          description: Schedule updated
+    delete:
+      tags: [Schedules]
+      summary: Delete schedule
+      parameters:
+        - $ref: '#/components/parameters/ScheduleId'
+      responses:
+        "204":
+          description: Schedule deleted
+
+  /publish/manual:
+    post:
+      tags: [Publish]
+      summary: Trigger manual publish
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                wallpaperId:
+                  type: string
+                  format: uuid
+      responses:
+        "202":
+          description: Publish job accepted
+
+  /publish/jobs:
+    get:
+      tags: [Publish]
+      summary: List publish jobs
+      responses:
+        "200":
+          description: Publish job list
+
+  /publish/status:
+    get:
+      tags: [Publish]
+      summary: Get current publish status
+      responses:
+        "200":
+          description: Current active wallpaper and last publish result
+
+  /publish/validate-share-access:
+    post:
+      tags: [Publish]
+      summary: Validate mounted share write access
+      responses:
+        "200":
+          description: Share access validation result
+
+  /dashboard/overview:
+    get:
+      tags: [Publish]
+      summary: Get dashboard overview
+      responses:
+        "200":
+          description: Dashboard overview payload
+
+  /dashboard/audit-logs:
+    get:
+      tags: [Publish]
+      summary: List audit logs
+      responses:
+        "200":
+          description: Audit log list
+
+  /config:
+    get:
+      tags: [Config]
+      summary: Get system configuration
+      responses:
+        "200":
+          description: Config payload
+    patch:
+      tags: [Config]
+      summary: Update system configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Config updated
+
+  /operations/secret-health:
+    get:
+      tags: [Operations]
+      summary: Get current secret source health
+      responses:
+        "200":
+          description: Secret health payload
+
+  /operations/backups:
+    get:
+      tags: [Operations]
+      summary: List available backup artifacts
+      responses:
+        "200":
+          description: Backup inventory
+
+  /operations/validation-report:
+    get:
+      tags: [Operations]
+      summary: Generate the current production validation report
+      responses:
+        "200":
+          description: Validation report payload
+
+  /operations/publish-probe:
+    post:
+      tags: [Operations]
+      summary: Run a non-destructive publish probe on the mounted target directory
+      responses:
+        "200":
+          description: Publish probe result
+
+  /operations/backups/metadata:
+    post:
+      tags: [Operations]
+      summary: Create a metadata backup
+      responses:
+        "201":
+          description: Metadata backup created
+
+  /operations/backups/publish-target:
+    post:
+      tags: [Operations]
+      summary: Create a publish target backup
+      responses:
+        "201":
+          description: Publish target backup created
+
+  /operations/backups/restore-metadata:
+    post:
+      tags: [Operations]
+      summary: Restore a metadata backup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fileName]
+              properties:
+                fileName:
+                  type: string
+      responses:
+        "200":
+          description: Metadata restore completed
+
+  /operations/backups/restore-publish-target:
+    post:
+      tags: [Operations]
+      summary: Restore a publish target backup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fileName]
+              properties:
+                fileName:
+                  type: string
+      responses:
+        "200":
+          description: Publish target restore completed
+
+  /operations/retention/prune:
+    post:
+      tags: [Operations]
+      summary: Run retention pruning for operational artifacts
+      responses:
+        "200":
+          description: Retention prune completed
+
+  /operations/restore-drill:
+    post:
+      tags: [Operations]
+      summary: Run a restore drill using an existing backup artifact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fileName, backupType]
+              properties:
+                fileName:
+                  type: string
+                backupType:
+                  type: string
+                  enum: [metadata, publish-target]
+      responses:
+        "200":
+          description: Restore drill result
+
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check with worker and share details
+      responses:
+        "200":
+          description: Service healthy
+
+components:
+  parameters:
+    WallpaperId:
+      name: wallpaperId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ScheduleId:
+      name: scheduleId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    ScheduleCreate:
+      type: object
+      required:
+        - wallpaperId
+        - name
+        - startAt
+        - timezone
+      properties:
+        wallpaperId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+          nullable: true
+        timezone:
+          type: string
+        priority:
+          type: integer
+          default: 100
+        enabled:
+          type: boolean
+          default: true
+    ScheduleUpdate:
+      type: object
+      properties:
+        wallpaperId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+          nullable: true
+        timezone:
+          type: string
+        priority:
+          type: integer
+        enabled:
+          type: boolean
