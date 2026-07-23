@@ -4,6 +4,14 @@ import { spawnSync } from 'node:child_process'
 const DEFAULT_BACKEND_PORT = 3011
 const DEFAULT_FRONTEND_PORT = 5173
 
+function shouldManagePortsLocally() {
+  if (process.env.DOCKER === '1') {
+    return false
+  }
+
+  return process.platform === 'win32'
+}
+
 function resolveBackendPort() {
   const parsed = Number(process.env.PORT ?? DEFAULT_BACKEND_PORT)
   return Number.isFinite(parsed) ? parsed : DEFAULT_BACKEND_PORT
@@ -45,28 +53,8 @@ function stopWindowsListeners(port: number) {
   return run('powershell.exe', ['-NoProfile', '-Command', script])
 }
 
-function stopUnixListeners(port: number) {
-  const script = `
-    pids=$(lsof -ti tcp:${port} -sTCP:LISTEN 2>/dev/null || true)
-    if [ -z "$pids" ]; then
-      echo "No listener on ${port}"
-      exit 0
-    fi
-
-    for pid in $pids; do
-      echo "Stopping PID $pid"
-      kill -9 "$pid"
-    done
-  `
-
-  return run('sh', ['-lc', script])
-}
-
 function stopPortListeners(port: number) {
-  const result =
-    process.platform === 'win32'
-      ? stopWindowsListeners(port)
-      : stopUnixListeners(port)
+  const result = stopWindowsListeners(port)
 
   if (result.error) {
     throw result.error
@@ -78,6 +66,11 @@ function stopPortListeners(port: number) {
 }
 
 function main() {
+  if (!shouldManagePortsLocally()) {
+    process.stdout.write('Skipping dev port cleanup outside local Windows development.\n')
+    return
+  }
+
   const ports = [resolveBackendPort(), resolveFrontendPort()]
   const uniquePorts = [...new Set(ports)]
 

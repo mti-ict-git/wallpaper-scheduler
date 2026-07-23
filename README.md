@@ -59,7 +59,8 @@ npm run dev
 ```
 
 Local dev note:
-- `npm run dev` automatically stops any process that is already listening on the local API port and the default Vite port before starting the stack again. This avoids stale frontend/backend processes and repeated `EADDRINUSE` failures during local development.
+- On local Windows development, `npm run dev` automatically stops any process that is already listening on the local API port and the default Vite port before starting the stack again.
+- Inside Docker or non-Windows environments, the preflight port cleanup is skipped so the container entry process is never terminated by the local-only helper.
 
 Default development endpoints:
 - Frontend: `http://localhost:5173` or the next available Vite port
